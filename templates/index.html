@@ -1,0 +1,931 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CampusFit | Fitness Intelligence Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+    --green: #1e654b;
+    --deep: #153d32;
+    --mint: #e9f5ee;
+    --ink: #20332d;
+    --muted: #718078;
+    --bg: #f3f6f4;
+    --line: #e5ece7;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    font-family: Arial, sans-serif;
+    color: var(--ink);
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 238px;
+    background: var(--deep);
+    color: white;
+    padding: 28px 18px;
+}
+
+.brand {
+    font-size: 27px;
+    font-weight: 800;
+    padding: 0 10px;
+}
+
+.brand span {
+    color: #81d7a9;
+}
+
+.tagline {
+    font-size: 10px;
+    letter-spacing: 1.7px;
+    color: #a8c7b8;
+    padding: 5px 11px 35px;
+}
+
+.navlabel {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: #9bb9aa;
+    margin: 22px 12px 9px;
+}
+
+.nav a {
+    display: block;
+    padding: 12px 13px;
+    margin: 4px 0;
+    color: #dce9e1;
+    text-decoration: none;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+.nav a:hover,
+.nav a.active {
+    background: #2b5d49;
+}
+
+.sidebar-foot {
+    position: absolute;
+    bottom: 22px;
+    left: 28px;
+    font-size: 11px;
+    color: #a8c7b8;
+}
+
+.main {
+    margin-left: 238px;
+    padding: 32px;
+    max-width: 1600px;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 15px;
+}
+
+.top h1 {
+    font-size: 27px;
+    margin-bottom: 7px;
+}
+
+.top p,
+.muted {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.status {
+    background: #e4f3e9;
+    color: #246548;
+    border-radius: 30px;
+    padding: 9px 13px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.grid {
+    display: grid;
+    gap: 17px;
+}
+
+.kpis {
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 18px;
+}
+
+.card,
+.panel {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 3px 12px #173d3210;
+}
+
+.klabel {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.kvalue {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 9px 0 5px;
+    color: #244c3c;
+}
+
+.knote {
+    font-size: 11px;
+    color: #849189;
+}
+
+.two {
+    grid-template-columns: 1.15fr .85fr;
+    margin-bottom: 18px;
+}
+
+.three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.panel h2 {
+    font-size: 17px;
+    margin-bottom: 6px;
+}
+
+.desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 17px;
+}
+
+.chartbox {
+    height: 260px;
+    position: relative;
+}
+
+.section {
+    margin: 30px 0 14px;
+    font-size: 19px;
+}
+
+.formgrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 650;
+    margin-bottom: 7px;
+    color: #41534a;
+}
+
+.field input,
+.field select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #dce6df;
+    border-radius: 8px;
+    background: white;
+    font-size: 13px;
+    color: #24372e;
+}
+
+.field input:focus,
+.field select:focus {
+    outline: 2px solid #b7ddc5;
+    border-color: #4c956c;
+}
+
+.group-title {
+    font-size: 14px;
+    color: var(--green);
+    font-weight: 750;
+    margin: 25px 0 13px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--line);
+}
+
+.btn {
+    border: 0;
+    border-radius: 9px;
+    background: var(--green);
+    color: white;
+    padding: 14px 20px;
+    font-weight: 750;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 22px;
+    width: 100%;
+}
+
+.btn:hover {
+    background: #164a36;
+}
+
+.resulthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.riskbadge {
+    padding: 8px 13px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.low {
+    background: #e5f5eb;
+    color: #267348;
+}
+
+.medium {
+    background: #fff4d9;
+    color: #91630b;
+}
+
+.high {
+    background: #fde9e7;
+    color: #ad3d32;
+}
+
+.score {
+    font-size: 35px;
+    font-weight: 850;
+    color: var(--green);
+    margin: 8px 0;
+}
+
+.resultgrid {
+    grid-template-columns: 1fr 1fr;
+    margin: 15px 0;
+}
+
+.list {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.list li {
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 9px 0;
+    color: #46564e;
+}
+
+.notice {
+    background: #f6f8f6;
+    border: 1px solid var(--line);
+    padding: 12px;
+    border-radius: 9px;
+    font-size: 11px;
+    color: #69786f;
+    line-height: 1.5;
+    margin-top: 15px;
+}
+
+.footer {
+    text-align: center;
+    color: #8b9890;
+    font-size: 11px;
+    padding: 30px 0;
+}
+
+.anchor {
+    scroll-margin-top: 20px;
+}
+
+@media(max-width:1100px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .two { grid-template-columns: 1fr; }
+    .three { grid-template-columns: 1fr; }
+    .formgrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width:720px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 18px;
+    }
+
+    .tagline { padding-bottom: 10px; }
+    .sidebar-foot { display: none; }
+
+    .nav { display: flex; flex-wrap: wrap; }
+    .navlabel { display: none; }
+
+    .main {
+        margin: 0;
+        padding: 17px;
+    }
+
+    .top {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .kpis { grid-template-columns: 1fr 1fr; }
+    .formgrid { grid-template-columns: 1fr; }
+    .resultgrid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+
+    <div class="brand">Campus<span>Fit</span></div>
+    <div class="tagline">FITNESS INTELLIGENCE</div>
+
+    <div class="navlabel">WORKSPACE</div>
+
+    <nav class="nav">
+        <a class="active" href="#overview">◫ Overview</a>
+        <a href="#assessment">◎ Risk Assessment</a>
+        <a href="#recommendations">✦ Recommendations</a>
+        <a href="#analytics">▥ Analytics</a>
+    </nav>
+
+    <div class="navlabel">PROJECT</div>
+
+    <nav class="nav">
+        <a href="#about">ⓘ About CampusFit</a>
+    </nav>
+
+    <div class="sidebar-foot">
+        Machine Learning · Flask Dashboard
+    </div>
+
+</aside>
+
+
+<main class="main">
+
+<header class="top" id="overview">
+
+    <div>
+        <h1>Fitness Analytics Dashboard</h1>
+        <p>
+            Understand fitness behaviour, assess dropout risk
+            and explore actionable habits.
+        </p>
+    </div>
+
+    <span class="status">● MODEL ONLINE</span>
+
+</header>
+
+
+<!-- KPI CARDS -->
+
+<section class="grid kpis">
+
+    <div class="card">
+        <div class="klabel">Dataset Records</div>
+        <div class="kvalue">{{ '{:,}'.format(total_records) }}</div>
+        <div class="knote">Dataset observations</div>
+    </div>
+
+    <div class="card">
+        <div class="klabel">Machine Learning Model</div>
+        <div class="kvalue">Decision Tree</div>
+        <div class="knote">Classification pipeline</div>
+    </div>
+
+    <div class="card">
+        <div class="klabel">Input Features</div>
+        <div class="kvalue">{{ fields|length }}</div>
+        <div class="knote">Fitness and lifestyle variables</div>
+    </div>
+
+    <div class="card">
+        <div class="klabel">Risk Categories</div>
+        <div class="kvalue">3</div>
+        <div class="knote">Low · Medium · High</div>
+    </div>
+
+</section>
+
+
+<!-- ANALYTICS -->
+
+<section class="grid two" id="analytics">
+
+    <div class="panel">
+
+        <h2>Dataset Risk Distribution</h2>
+
+        <p class="desc">
+            Distribution of dropout-risk categories
+            in the supplied dataset.
+        </p>
+
+        <div class="chartbox">
+            <canvas id="riskChart"></canvas>
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Top Model Features</h2>
+
+        <p class="desc">
+            Global feature importance from the trained
+            Decision Tree model.
+        </p>
+
+        <div class="chartbox">
+            <canvas id="featureChart"></canvas>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- INPUT FORM -->
+
+<section class="panel anchor" id="assessment">
+
+    <h2>Individual Risk Assessment</h2>
+
+    <p class="desc">
+        Enter member fitness and lifestyle information
+        to generate a personalized analysis.
+    </p>
+
+
+    <form method="POST">
+
+        {% set groups = [
+            ('Personal Profile',
+            ['Age','Gender','Height_cm','Weight_kg','BMI']),
+
+            ('Fitness & Activity',
+            ['Fitness_Goal','Activity_Level','Daily_Steps',
+            'Workout_Days','Workout_Duration_Min',
+            'Calories_Burned','Fitness_Level','Workout_Type',
+            'Streak_Days']),
+
+            ('Nutrition & Wellbeing',
+            ['Sleep_Hours','Stress_Level','Water_Intake_L',
+            'Diet_Type','Daily_Calories','Protein_g',
+            'Carbs_g','Fat_g','Mood','Heart_Rate',
+            'Body_Fat_Percent','Recommended_Diet',
+            'Hydration_Status'])
+        ] %}
+
+
+        {% for group_name, keys in groups %}
+
+            <div class="group-title">
+                {{ group_name }}
+            </div>
+
+            <div class="formgrid">
+
+                {% for key in keys %}
+
+                    {% set meta = fields[key] %}
+
+                    <div class="field">
+
+                        <label for="{{ key }}">
+                            {{ meta[0] }}
+                        </label>
+
+                        {% if meta[1] == 'select' %}
+
+                            <select id="{{ key }}" name="{{ key }}">
+
+                                {% for opt in meta[2] %}
+
+                                    <option value="{{ opt }}"
+                                    {% if row and row[key] == opt %}
+                                    selected
+                                    {% endif %}>
+                                        {{ opt }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        {% else %}
+
+                            <input
+                                type="number"
+                                step="any"
+                                id="{{ key }}"
+                                name="{{ key }}"
+                                value="{{ row[key] if row else meta[2] }}"
+                                required
+                            >
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <button class="btn" type="submit">
+            Generate Fitness & Risk Analysis →
+        </button>
+
+    </form>
+
+</section>
+
+
+<!-- PREDICTION RESULTS -->
+
+{% if result is not none %}
+
+<h2 class="section">Your Assessment Results</h2>
+
+<section class="panel">
+
+    <div class="resulthead">
+
+        <div>
+            <h2>Predicted Dropout Risk</h2>
+
+            <p class="desc">
+                Prediction generated from your submitted profile.
+            </p>
+        </div>
+
+        <span class="riskbadge {{ result|lower }}">
+            {{ result|upper }} RISK
+        </span>
+
+    </div>
+
+
+    <div class="grid resultgrid">
+
+        <div>
+
+            <div class="klabel">
+                Probability-weighted risk indicator
+            </div>
+
+            <div class="score">
+                {{ risk_score }} / 100
+            </div>
+
+            <p class="desc">
+                Calculated from the model's Medium and High
+                class probabilities. This is an indicative
+                model score, not a clinical measurement.
+            </p>
+
+            <p style="font-size:13px;line-height:1.6">
+                {{ risk_advice }}
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <div class="klabel">
+                Model Class Probabilities
+            </div>
+
+            <div class="chartbox" style="height:210px">
+                <canvas id="probChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PERSONALIZED RECOMMENDATIONS -->
+
+<section class="grid three anchor"
+         id="recommendations"
+         style="margin-top:17px">
+
+
+    <div class="panel">
+
+        <h2>Recommended Exercises</h2>
+
+        <p class="desc">
+            Suggestions based on submitted activity information.
+        </p>
+
+        <ul class="list">
+
+            {% for item in workouts %}
+                <li>{{ item }}</li>
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Nutrition Suggestions</h2>
+
+        <p class="desc">
+            General food-pattern recommendations.
+        </p>
+
+        <ul class="list">
+
+            {% for item in nutrition %}
+                <li>{{ item }}</li>
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Recovery & Lifestyle</h2>
+
+        <p class="desc">
+            Lifestyle habits worth reviewing.
+        </p>
+
+        <ul class="list">
+
+            {% for item in lifestyle %}
+                <li>{{ item }}</li>
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- ABOUT -->
+
+<section class="panel anchor"
+         id="about"
+         style="margin-top:18px">
+
+    <h2>About CampusFit</h2>
+
+    <p class="desc" style="margin-bottom:0">
+
+        CampusFit is a machine-learning-based fitness
+        behaviour analysis project designed to classify
+        dropout-risk categories using fitness and lifestyle
+        information.
+
+        Dataset charts describe the supplied synthetic dataset.
+        Individual recommendations are rule-based suggestions
+        and should not be treated as medical advice.
+
+    </p>
+
+</section>
+
+
+<div class="footer">
+    CampusFit | Fitness Behaviour & Dropout Risk Analytics
+</div>
+
+</main>
+
+
+<!-- CHARTS -->
+
+<script>
+
+const riskLabels = {{ ['Low','Medium','High']|tojson }};
+
+const riskValues = {{
+    [
+        class_counts['Low'],
+        class_counts['Medium'],
+        class_counts['High']
+    ]|tojson
+}};
+
+const featureLabels = {{ importance_labels|tojson }};
+const featureValues = {{ importance_values|tojson }};
+
+
+const baseOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    plugins: {
+        legend: {
+            position: 'bottom',
+
+            labels: {
+                usePointStyle: true,
+                boxWidth: 8,
+                font: {
+                    size: 11
+                }
+            }
+        }
+    }
+};
+
+
+// DROPOUT RISK DISTRIBUTION
+
+new Chart(document.getElementById('riskChart'), {
+
+    type: 'doughnut',
+
+    data: {
+        labels: riskLabels,
+
+        datasets: [{
+            data: riskValues,
+
+            backgroundColor: [
+                '#39865e',
+                '#e9b949',
+                '#d96a5f'
+            ],
+
+            borderWidth: 0,
+            hoverOffset: 5
+        }]
+    },
+
+    options: {
+        ...baseOptions,
+        cutout: '68%'
+    }
+
+});
+
+
+// FEATURE IMPORTANCE
+
+new Chart(document.getElementById('featureChart'), {
+
+    type: 'bar',
+
+    data: {
+        labels: featureLabels,
+
+        datasets: [{
+            label: 'Importance',
+            data: featureValues,
+            backgroundColor: '#4b9670',
+            borderRadius: 5
+        }]
+    },
+
+    options: {
+        ...baseOptions,
+
+        indexAxis: 'y',
+
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+
+        scales: {
+            x: {
+                beginAtZero: true
+            },
+
+            y: {
+                grid: {
+                    display: false
+                },
+
+                ticks: {
+                    font: {
+                        size: 10
+                    }
+                }
+            }
+        }
+    }
+
+});
+
+
+{% if result is not none %}
+
+// INDIVIDUAL PREDICTION PROBABILITY
+
+const probabilities = {{ probs|tojson }};
+
+new Chart(document.getElementById('probChart'), {
+
+    type: 'bar',
+
+    data: {
+
+        labels: Object.keys(probabilities),
+
+        datasets: [{
+
+            label: 'Probability (%)',
+
+            data: Object.values(probabilities),
+
+            backgroundColor: [
+                '#39865e',
+                '#e9b949',
+                '#d96a5f'
+            ],
+
+            borderRadius: 6
+
+        }]
+
+    },
+
+    options: {
+
+        ...baseOptions,
+
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+
+        scales: {
+
+            y: {
+                beginAtZero: true,
+                max: 100,
+
+                ticks: {
+                    callback: value => value + '%'
+                }
+            },
+
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+
+        }
+
+    }
+
+});
+
+{% endif %}
+
+</script>
+
+</body>
+</html>
