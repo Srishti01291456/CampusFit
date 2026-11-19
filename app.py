@@ -94,3 +94,6 @@ def load_and_train():
         importance_labels = [str(name).replace("numeric__", "").replace("categorical__", "") for name, _ in pairs]
         importance_values = [round(float(value), 5) for _, value in pairs]
     except Exception:
+        print("Feature importance calculation error:", e)
+        importance_labels = []
+        importance_values = []
