@@ -4,7 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>CampusFit | Fitness Intelligence Dashboard</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -24,6 +26,10 @@
     padding: 0;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background: var(--bg);
     font-family: Arial, sans-serif;
@@ -39,6 +45,7 @@ body {
     background: var(--deep);
     color: white;
     padding: 28px 18px;
+    z-index: 10;
 }
 
 .brand {
@@ -73,6 +80,7 @@ body {
     text-decoration: none;
     border-radius: 9px;
     font-size: 13px;
+    transition: .2s;
 }
 
 .nav a:hover,
@@ -120,6 +128,7 @@ body {
     padding: 9px 13px;
     font-size: 12px;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .grid {
@@ -175,7 +184,7 @@ body {
 .desc {
     font-size: 12px;
     color: var(--muted);
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 17px;
 }
 
@@ -229,6 +238,12 @@ body {
     border-bottom: 1px solid var(--line);
 }
 
+.input-hint {
+    font-size: 10px;
+    color: #849189;
+    margin-top: 5px;
+}
+
 .btn {
     border: 0;
     border-radius: 9px;
@@ -240,10 +255,21 @@ body {
     cursor: pointer;
     margin-top: 22px;
     width: 100%;
+    transition: .2s;
 }
 
 .btn:hover {
     background: #164a36;
+}
+
+.error-box {
+    background: #fff0ed;
+    color: #a43d32;
+    border: 1px solid #f4c7c0;
+    border-radius: 9px;
+    padding: 13px;
+    font-size: 13px;
+    margin-bottom: 18px;
 }
 
 .resulthead {
@@ -258,6 +284,7 @@ body {
     border-radius: 30px;
     font-size: 12px;
     font-weight: 800;
+    white-space: nowrap;
 }
 
 .low {
@@ -285,6 +312,46 @@ body {
 .resultgrid {
     grid-template-columns: 1fr 1fr;
     margin: 15px 0;
+    align-items: center;
+}
+
+.prob-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.prob-item {
+    padding: 10px 5px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.prob-item span {
+    display: block;
+    font-size: 10px;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.prob-item strong {
+    font-size: 15px;
+}
+
+.prob-low {
+    background: #e5f5eb;
+    color: #267348;
+}
+
+.prob-medium {
+    background: #fff4d9;
+    color: #91630b;
+}
+
+.prob-high {
+    background: #fde9e7;
+    color: #ad3d32;
 }
 
 .list {
@@ -322,10 +389,21 @@ body {
 }
 
 @media(max-width:1100px) {
-    .kpis { grid-template-columns: repeat(2, 1fr); }
-    .two { grid-template-columns: 1fr; }
-    .three { grid-template-columns: 1fr; }
-    .formgrid { grid-template-columns: repeat(2, 1fr); }
+    .kpis {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .two {
+        grid-template-columns: 1fr;
+    }
+
+    .three {
+        grid-template-columns: 1fr;
+    }
+
+    .formgrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media(max-width:720px) {
@@ -336,11 +414,22 @@ body {
         padding: 18px;
     }
 
-    .tagline { padding-bottom: 10px; }
-    .sidebar-foot { display: none; }
+    .tagline {
+        padding-bottom: 10px;
+    }
 
-    .nav { display: flex; flex-wrap: wrap; }
-    .navlabel { display: none; }
+    .sidebar-foot {
+        display: none;
+    }
+
+    .nav {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .navlabel {
+        display: none;
+    }
 
     .main {
         margin: 0;
@@ -352,9 +441,17 @@ body {
         flex-direction: column;
     }
 
-    .kpis { grid-template-columns: 1fr 1fr; }
-    .formgrid { grid-template-columns: 1fr; }
-    .resultgrid { grid-template-columns: 1fr; }
+    .kpis {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .formgrid {
+        grid-template-columns: 1fr;
+    }
+
+    .resultgrid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 </head>
@@ -364,6 +461,7 @@ body {
 <aside class="sidebar">
 
     <div class="brand">Campus<span>Fit</span></div>
+
     <div class="tagline">FITNESS INTELLIGENCE</div>
 
     <div class="navlabel">WORKSPACE</div>
@@ -394,6 +492,7 @@ body {
 
     <div>
         <h1>Fitness Analytics Dashboard</h1>
+
         <p>
             Understand fitness behaviour, assess dropout risk
             and explore actionable habits.
@@ -411,25 +510,40 @@ body {
 
     <div class="card">
         <div class="klabel">Dataset Records</div>
-        <div class="kvalue">{{ '{:,}'.format(total_records) }}</div>
+
+        <div class="kvalue">
+            {{ '{:,}'.format(total_records) }}
+        </div>
+
         <div class="knote">Dataset observations</div>
     </div>
 
+
     <div class="card">
         <div class="klabel">Machine Learning Model</div>
-        <div class="kvalue">Decision Tree</div>
-        <div class="knote">Classification pipeline</div>
+
+        <div class="kvalue">Random Forest</div>
+
+        <div class="knote">300-tree classification model</div>
     </div>
+
 
     <div class="card">
         <div class="klabel">Input Features</div>
+
         <div class="kvalue">{{ fields|length }}</div>
-        <div class="knote">Fitness and lifestyle variables</div>
+
+        <div class="knote">
+            Fitness and lifestyle variables
+        </div>
     </div>
+
 
     <div class="card">
         <div class="klabel">Risk Categories</div>
+
         <div class="kvalue">3</div>
+
         <div class="knote">Low · Medium · High</div>
     </div>
 
@@ -462,7 +576,7 @@ body {
 
         <p class="desc">
             Global feature importance from the trained
-            Decision Tree model.
+            Random Forest model.
         </p>
 
         <div class="chartbox">
@@ -486,9 +600,19 @@ body {
     </p>
 
 
-    <form method="POST">
+    {% if error_message %}
+
+        <div class="error-box">
+            {{ error_message }}
+        </div>
+
+    {% endif %}
+
+
+    <form method="POST" action="{{ url_for('index') }}">
 
         {% set groups = [
+
             ('Personal Profile',
             ['Age','Gender','Height_cm','Weight_kg','BMI']),
 
@@ -504,6 +628,7 @@ body {
             'Carbs_g','Fat_g','Mood','Heart_Rate',
             'Body_Fat_Percent','Recommended_Diet',
             'Hydration_Status'])
+
         ] %}
 
 
@@ -527,14 +652,20 @@ body {
 
                         {% if meta[1] == 'select' %}
 
-                            <select id="{{ key }}" name="{{ key }}">
+                            <select
+                                id="{{ key }}"
+                                name="{{ key }}"
+                                required
+                            >
 
                                 {% for opt in meta[2] %}
 
-                                    <option value="{{ opt }}"
-                                    {% if row and row[key] == opt %}
-                                    selected
-                                    {% endif %}>
+                                    <option
+                                        value="{{ opt }}"
+                                        {% if row and row.get(key) == opt %}
+                                            selected
+                                        {% endif %}
+                                    >
                                         {{ opt }}
                                     </option>
 
@@ -549,9 +680,14 @@ body {
                                 step="any"
                                 id="{{ key }}"
                                 name="{{ key }}"
-                                value="{{ row[key] if row else meta[2] }}"
+                                value="{{ row.get(key, meta[2]) if row else meta[2] }}"
                                 required
                             >
+
+                            <div class="input-hint">
+                                Suggested value based on your dataset.
+                                No fixed range restriction.
+                            </div>
 
                         {% endif %}
 
@@ -633,8 +769,34 @@ body {
                 <canvas id="probChart"></canvas>
             </div>
 
+            <div class="prob-summary">
+
+                <div class="prob-item prob-low">
+                    <span>LOW</span>
+                    <strong>{{ probs.get('Low', 0) }}%</strong>
+                </div>
+
+                <div class="prob-item prob-medium">
+                    <span>MEDIUM</span>
+                    <strong>{{ probs.get('Medium', 0) }}%</strong>
+                </div>
+
+                <div class="prob-item prob-high">
+                    <span>HIGH</span>
+                    <strong>{{ probs.get('High', 0) }}%</strong>
+                </div>
+
+            </div>
+
         </div>
 
+    </div>
+
+    <div class="notice">
+        The risk score is calculated from model probabilities.
+        It is an experimental indicator based on the supplied
+        dataset, not a clinical measurement or a validated
+        prediction of an individual's actual behaviour.
     </div>
 
 </section>
@@ -723,7 +885,7 @@ body {
         dropout-risk categories using fitness and lifestyle
         information.
 
-        Dataset charts describe the supplied synthetic dataset.
+        Dataset charts describe the supplied dataset.
         Individual recommendations are rule-based suggestions
         and should not be treated as medical advice.
 
@@ -743,7 +905,7 @@ body {
 
 <script>
 
-const riskLabels = {{ ['Low','Medium','High']|tojson }};
+const riskLabels = {{ ['Low', 'Medium', 'High']|tojson }};
 
 const riskValues = {{
     [
@@ -768,6 +930,7 @@ const baseOptions = {
             labels: {
                 usePointStyle: true,
                 boxWidth: 8,
+
                 font: {
                     size: 11
                 }
@@ -777,85 +940,87 @@ const baseOptions = {
 };
 
 
-// DROPOUT RISK DISTRIBUTION
+// DATASET RISK DISTRIBUTION
 
-new Chart(document.getElementById('riskChart'), {
+new Chart(
+    document.getElementById('riskChart'),
+    {
+        type: 'doughnut',
 
-    type: 'doughnut',
+        data: {
+            labels: riskLabels,
 
-    data: {
-        labels: riskLabels,
+            datasets: [{
+                data: riskValues,
 
-        datasets: [{
-            data: riskValues,
+                backgroundColor: [
+                    '#39865e',
+                    '#e9b949',
+                    '#d96a5f'
+                ],
 
-            backgroundColor: [
-                '#39865e',
-                '#e9b949',
-                '#d96a5f'
-            ],
-
-            borderWidth: 0,
-            hoverOffset: 5
-        }]
-    },
-
-    options: {
-        ...baseOptions,
-        cutout: '68%'
-    }
-
-});
-
-
-// FEATURE IMPORTANCE
-
-new Chart(document.getElementById('featureChart'), {
-
-    type: 'bar',
-
-    data: {
-        labels: featureLabels,
-
-        datasets: [{
-            label: 'Importance',
-            data: featureValues,
-            backgroundColor: '#4b9670',
-            borderRadius: 5
-        }]
-    },
-
-    options: {
-        ...baseOptions,
-
-        indexAxis: 'y',
-
-        plugins: {
-            legend: {
-                display: false
-            }
+                borderWidth: 0,
+                hoverOffset: 5
+            }]
         },
 
-        scales: {
-            x: {
-                beginAtZero: true
+        options: {
+            ...baseOptions,
+            cutout: '68%'
+        }
+    }
+);
+
+
+// RANDOM FOREST FEATURE IMPORTANCE
+
+new Chart(
+    document.getElementById('featureChart'),
+    {
+        type: 'bar',
+
+        data: {
+            labels: featureLabels,
+
+            datasets: [{
+                label: 'Importance',
+                data: featureValues,
+                backgroundColor: '#4b9670',
+                borderRadius: 5
+            }]
+        },
+
+        options: {
+            ...baseOptions,
+
+            indexAxis: 'y',
+
+            plugins: {
+                legend: {
+                    display: false
+                }
             },
 
-            y: {
-                grid: {
-                    display: false
+            scales: {
+                x: {
+                    beginAtZero: true
                 },
 
-                ticks: {
-                    font: {
-                        size: 10
+                y: {
+                    grid: {
+                        display: false
+                    },
+
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
                     }
                 }
             }
         }
     }
-
-});
+);
 
 
 {% if result is not none %}
@@ -864,64 +1029,81 @@ new Chart(document.getElementById('featureChart'), {
 
 const probabilities = {{ probs|tojson }};
 
-new Chart(document.getElementById('probChart'), {
+const probabilityLabels = [
+    'Low',
+    'Medium',
+    'High'
+];
 
-    type: 'bar',
+const probabilityValues = probabilityLabels.map(
+    label => Number(probabilities[label] || 0)
+);
 
-    data: {
+new Chart(
+    document.getElementById('probChart'),
+    {
+        type: 'bar',
 
-        labels: Object.keys(probabilities),
+        data: {
+            labels: probabilityLabels,
 
-        datasets: [{
+            datasets: [{
+                label: 'Probability (%)',
 
-            label: 'Probability (%)',
+                data: probabilityValues,
 
-            data: Object.values(probabilities),
+                backgroundColor: [
+                    '#39865e',
+                    '#e9b949',
+                    '#d96a5f'
+                ],
 
-            backgroundColor: [
-                '#39865e',
-                '#e9b949',
-                '#d96a5f'
-            ],
-
-            borderRadius: 6
-
-        }]
-
-    },
-
-    options: {
-
-        ...baseOptions,
-
-        plugins: {
-            legend: {
-                display: false
-            }
+                borderRadius: 6,
+                maxBarThickness: 65
+            }]
         },
 
-        scales: {
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
 
-            y: {
-                beginAtZero: true,
-                max: 100,
+            plugins: {
+                legend: {
+                    display: false
+                },
 
-                ticks: {
-                    callback: value => value + '%'
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y.toFixed(2) + '%';
+                        }
+                    }
                 }
             },
 
-            x: {
-                grid: {
-                    display: false
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+
+                    ticks: {
+                        stepSize: 20,
+
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+
+                x: {
+                    grid: {
+                        display: false
+                    }
                 }
             }
-
         }
-
     }
-
-});
+);
 
 {% endif %}
 
