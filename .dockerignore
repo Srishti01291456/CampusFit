@@ -1,5 +1,10 @@
-venv
-.venv
-__pycache__
-.ipynb_checkpoints
-.git
+
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.git/
+.gitignore
+.ipynb_checkpoints/
+.DS_Store
